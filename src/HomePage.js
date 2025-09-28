@@ -904,3 +904,448 @@ function HomePage() {
             transform: translateY(-1px);
             box-shadow: 0 6px 16px rgba(5, 150, 105, 0.4);
           }
+          
+          .secondary-button:hover {
+            background-color: #f1f5f9;
+            border-color: #cbd5e1;
+          }
+          
+          .back-button:hover {
+            background: linear-gradient(135deg, #4b5563 0%, #374151 100%);
+          }
+        `}
+      </style>
+
+      {/* Header */}
+      <header style={styles.header}>
+        <div style={styles.headerContent}>
+          <div>
+            <h1 style={{margin: 0, fontSize: '28px'}}>Mastercard Hosted Checkout</h1>
+            <p style={{margin: '8px 0 0 0', opacity: 0.9, fontSize: '16px'}}>
+              Secure Payment Integration Platform
+            </p>
+          </div>
+          <div style={{display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'flex-end'}}>
+            <div style={styles.securityBadge}>
+              <span>🔒 PCI DSS Compliant</span>
+            </div>
+            <div style={styles.statusIndicator}>
+              <div style={styles.statusDot}></div>
+              <span>
+                {connectionStatus === 'connected' ? 'Backend Connected' : 
+                 connectionStatus === 'checking' ? 'Checking Connection...' : 
+                 'Connection Error'}
+              </span>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Success Message */}
+      {success && (
+        <div style={styles.successMessage}>
+          <span>✅</span>
+          <p style={{margin: 0}}>{success}</p>
+        </div>
+      )}
+
+      {/* Error Message */}
+      {error && (
+        <div style={styles.errorMessage}>
+          <span>⚠️</span>
+          <div>
+            <p style={{margin: 0, fontWeight: '600'}}>Error</p>
+            <p style={{margin: '4px 0 0 0', fontSize: '14px'}}>{error}</p>
+          </div>
+        </div>
+      )}
+
+      {/* Configuration Form */}
+      {showConfigForm && !showEmbeddedCheckout && (
+        <div style={styles.configForm}>
+          {/* Environment Badge */}
+          <div style={styles.envBadge}>
+            development
+          </div>
+
+          <h2 style={{marginTop: 0, color: '#1f2937', marginBottom: '8px', fontSize: '24px'}}>
+            Payment Configuration
+          </h2>
+          <p style={{color: '#6b7280', marginBottom: '25px', fontSize: '15px'}}>
+            Configure your Mastercard payment gateway settings and order details
+          </p>
+
+          {/* Tools Section */}
+          <div style={styles.toolsSection}>
+            <button
+              style={styles.toolButton}
+              className="tool-button"
+              onClick={testApiConnection}
+              disabled={isLoadingSession}
+            >
+              🔍 Test API Connection
+            </button>
+            <button
+              style={styles.toolButton}
+              className="tool-button"
+              onClick={checkConnection}
+            >
+              🔄 Refresh Connection
+            </button>
+            <button
+              style={styles.toolButton}
+              className="tool-button"
+              onClick={() => setShowApiTest(!showApiTest)}
+            >
+              🛠️ Debug Info
+            </button>
+            {ENABLE_CONFIG_SAVE && (
+              <button
+                style={styles.toolButton}
+                className="tool-button"
+                onClick={() => saveConfigToStorage(config, orderConfig)}
+              >
+                💾 Save Config
+              </button>
+            )}
+          </div>
+
+          {/* Debug Panel */}
+          {showApiTest && (
+            <div style={styles.debugPanel}>
+              <strong>Debug Information:</strong><br/>
+              API URL: {API_BASE_URL}<br/>
+              Environment: development<br/>
+              Debug Mode: {DEBUG_MODE ? 'Enabled' : 'Disabled'}<br/>
+              Advanced Mode: {ENABLE_ADVANCED_MODE ? 'Available' : 'Disabled'}<br/>
+              Config Save: {ENABLE_CONFIG_SAVE ? 'Enabled' : 'Disabled'}<br/>
+              Last Session ID: {lastSessionId || 'None'}<br/>
+              Connection Status: {connectionStatus}<br/>
+              Checkout Ready: {isCheckoutReady ? 'Yes' : 'No'}
+            </div>
+          )}
+          
+          {/* Mode Toggle - Only show if advanced mode is enabled */}
+          {ENABLE_ADVANCED_MODE && (
+            <div style={styles.modeToggle}>
+              <button
+                style={{
+                  ...styles.modeButton,
+                  ...(useAdvancedMode ? styles.modeButtonInactive : styles.modeButtonActive)
+                }}
+                onClick={() => setUseAdvancedMode(false)}
+              >
+                🎯 Simple Mode
+              </button>
+              <button
+                style={{
+                  ...styles.modeButton,
+                  ...(useAdvancedMode ? styles.modeButtonActive : styles.modeButtonInactive)
+                }}
+                onClick={() => setUseAdvancedMode(true)}
+              >
+                ⚙️ Advanced JSON Mode
+              </button>
+            </div>
+          )}
+
+          {/* API Configuration Section */}
+          <div style={styles.sectionTitle}>
+            🔐 API Configuration
+          </div>
+          <div style={styles.infoBox}>
+            <span>💡</span>
+            <div>
+              <strong>Secure Credentials:</strong> Your API credentials are used to authenticate with Mastercard's payment gateway. 
+              These are never stored on our servers and are only transmitted securely to Mastercard.
+            </div>
+          </div>
+
+          <div style={styles.formRow} className="form-row">
+            <div style={styles.formGroup}>
+              <label style={styles.label}>Merchant ID</label>
+              <input
+                style={styles.input}
+                className="config-input"
+                type="text"
+                value={config.merchantId}
+                onChange={(e) => handleConfigChange('merchantId', e.target.value)}
+                placeholder="TESTMIDtesting00"
+                onFocus={(e) => e.target.classList.add('input-focused')}
+                onBlur={(e) => e.target.classList.remove('input-focused')}
+              />
+            </div>
+            <div style={styles.formGroup}>
+              <label style={styles.label}>Username (auto-generated)</label>
+              <input
+                style={{...styles.input, backgroundColor: '#f9fafb', color: '#6b7280'}}
+                type="text"
+                value={config.username}
+                readOnly
+                placeholder="merchant.TESTMIDtesting00"
+              />
+            </div>
+          </div>
+
+          <div style={styles.formGroup}>
+            <label style={styles.label}>API Password</label>
+            <input
+              style={styles.input}
+              className="config-input"
+              type="password"
+              value={config.password}
+              onChange={(e) => handleConfigChange('password', e.target.value)}
+              placeholder="Enter your Mastercard API password"
+              onFocus={(e) => e.target.classList.add('input-focused')}
+              onBlur={(e) => e.target.classList.remove('input-focused')}
+            />
+          </div>
+
+          <div style={styles.formRow} className="form-row">
+            <div style={styles.formGroup}>
+              <label style={styles.label}>API Base URL</label>
+              <input
+                style={styles.input}
+                className="config-input"
+                type="text"
+                value={config.apiBaseUrl}
+                onChange={(e) => handleConfigChange('apiBaseUrl', e.target.value)}
+                placeholder="https://mtf.gateway.mastercard.com"
+                onFocus={(e) => e.target.classList.add('input-focused')}
+                onBlur={(e) => e.target.classList.remove('input-focused')}
+              />
+            </div>
+            <div style={styles.formGroup}>
+              <label style={styles.label}>API Version</label>
+              <input
+                style={styles.input}
+                className="config-input"
+                type="text"
+                value={config.apiVersion}
+                onChange={(e) => handleConfigChange('apiVersion', e.target.value)}
+                placeholder="73"
+                onFocus={(e) => e.target.classList.add('input-focused')}
+                onBlur={(e) => e.target.classList.remove('input-focused')}
+              />
+            </div>
+          </div>
+
+          {/* Order Configuration - Simple Mode */}
+          {!useAdvancedMode && (
+            <>
+              <div style={styles.sectionTitle}>
+                💳 Order Configuration
+              </div>
+              <div style={styles.formRow} className="form-row">
+                <div style={styles.formGroup}>
+                  <label style={styles.label}>Amount</label>
+                  <input
+                    style={styles.input}
+                    className="config-input"
+                    type="number"
+                    step="0.01"
+                    min="0.01"
+                    value={orderConfig.amount}
+                    onChange={(e) => handleOrderConfigChange('amount', e.target.value)}
+                    placeholder="99.00"
+                    onFocus={(e) => e.target.classList.add('input-focused')}
+                    onBlur={(e) => e.target.classList.remove('input-focused')}
+                  />
+                </div>
+                <div style={styles.formGroup}>
+                  <label style={styles.label}>Currency</label>
+                  <select
+                    style={styles.input}
+                    value={orderConfig.currency}
+                    onChange={(e) => handleOrderConfigChange('currency', e.target.value)}
+                    onFocus={(e) => e.target.classList.add('input-focused')}
+                    onBlur={(e) => e.target.classList.remove('input-focused')}
+                  >
+                    <option value="USD">USD - US Dollar</option>
+                    <option value="EUR">EUR - Euro</option>
+                    <option value="GBP">GBP - British Pound</option>
+                    <option value="CAD">CAD - Canadian Dollar</option>
+                    <option value="AUD">AUD - Australian Dollar</option>
+                    <option value="JPY">JPY - Japanese Yen</option>
+                  </select>
+                </div>
+              </div>
+
+              <div style={styles.formGroup}>
+                <label style={styles.label}>Order Description</label>
+                <input
+                  style={styles.input}
+                  className="config-input"
+                  type="text"
+                  value={orderConfig.description}
+                  onChange={(e) => handleOrderConfigChange('description', e.target.value)}
+                  placeholder="Goods and Services"
+                  onFocus={(e) => e.target.classList.add('input-focused')}
+                  onBlur={(e) => e.target.classList.remove('input-focused')}
+                />
+              </div>
+
+              <div style={styles.sectionTitle}>
+                🏢 Merchant Information
+              </div>
+              <div style={styles.formRow} className="form-row">
+                <div style={styles.formGroup}>
+                  <label style={styles.label}>Merchant Name</label>
+                  <input
+                    style={styles.input}
+                    className="config-input"
+                    type="text"
+                    value={orderConfig.merchantName}
+                    onChange={(e) => handleOrderConfigChange('merchantName', e.target.value)}
+                    placeholder="JK Enterprises LLC"
+                    onFocus={(e) => e.target.classList.add('input-focused')}
+                    onBlur={(e) => e.target.classList.remove('input-focused')}
+                  />
+                </div>
+                <div style={styles.formGroup}>
+                  <label style={styles.label}>Merchant URL</label>
+                  <input
+                    style={styles.input}
+                    className="config-input"
+                    type="url"
+                    value={orderConfig.merchantUrl}
+                    onChange={(e) => handleOrderConfigChange('merchantUrl', e.target.value)}
+                    placeholder="https://microsoft.com/"
+                    onFocus={(e) => e.target.classList.add('input-focused')}
+                    onBlur={(e) => e.target.classList.remove('input-focused')}
+                  />
+                </div>
+              </div>
+
+              <div style={styles.formGroup}>
+                <label style={styles.label}>Return URL</label>
+                <input
+                  style={styles.input}
+                  className="config-input"
+                  type="url"
+                  value={orderConfig.returnUrl}
+                  onChange={(e) => handleOrderConfigChange('returnUrl', e.target.value)}
+                  placeholder={`${window.location.origin}/ReceiptPage`}
+                  onFocus={(e) => e.target.classList.add('input-focused')}
+                  onBlur={(e) => e.target.classList.remove('input-focused')}
+                />
+              </div>
+            </>
+          )}
+
+          {/* JSON Editor - Advanced Mode */}
+          {useAdvancedMode && ENABLE_ADVANCED_MODE && (
+            <>
+              <div style={styles.sectionTitle}>
+                ⚙️ Advanced JSON Configuration
+              </div>
+              <div style={styles.infoBox}>
+                <span>🔧</span>
+                <div>
+                  <strong>Advanced JSON Mode:</strong> Edit the complete JSON request payload for full control. 
+                  Use "ORDER_PLACEHOLDER" for the order ID - it will be auto-generated with a unique timestamp and random string.
+                </div>
+              </div>
+              
+              <div style={styles.formGroup}>
+                <label style={styles.label}>JSON Request Payload</label>
+                <textarea
+                  style={{
+                    ...styles.textarea,
+                    ...(jsonError ? styles.textareaError : {})
+                  }}
+                  value={jsonPayload}
+                  onChange={(e) => handleJsonChange(e.target.value)}
+                  placeholder="Enter complete JSON payload..."
+                />
+                {jsonError && (
+                  <div style={styles.jsonError}>
+                    <strong>JSON Error:</strong> {jsonError}
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+
+          {/* Action Buttons */}
+          <button 
+            onClick={openCheckoutPage} 
+            className="payment-button"
+            style={{
+              ...styles.paymentButton,
+              ...(isLoadingSession || !isFormValid() ? styles.paymentButtonDisabled : {})
+            }}
+            disabled={isLoadingSession || !isFormValid()}
+          >
+            {isLoadingSession ? (
+              <>
+                <div style={styles.spinner}></div>
+                <span>Initializing Payment Session...</span>
+              </>
+            ) : (
+              <>
+                💳 <span>Proceed to Secure Checkout (${getCurrentAmount()} {useAdvancedMode ? 
+                  ((() => {
+                    try {
+                      return JSON.parse(jsonPayload).order?.currency || 'USD';
+                    } catch {
+                      return 'USD';
+                    }
+                  })()) : orderConfig.currency})</span>
+              </>
+            )}
+          </button>
+
+          {/* Secondary Buttons */}
+          <button 
+            onClick={resetToDefaults}
+            className="secondary-button"
+            style={styles.secondaryButton}
+          >
+            🔄 Reset to Defaults
+          </button>
+        </div>
+      )}
+
+      {/* Embedded Checkout View */}
+      {showEmbeddedCheckout && (
+        <div style={styles.embeddedContainer}>
+          <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px'}}>
+            <button 
+              onClick={hideEmbeddedCheckout}
+              className="back-button"
+              style={styles.backButton}
+            >
+              ← Back to Configuration
+            </button>
+            <div style={{fontSize: '14px', color: '#6b7280'}}>
+              Session: {paymentSession?.substring(0, 12)}...
+            </div>
+          </div>
+          
+          <div 
+            id="embed-target" 
+            ref={embedTargetRef}
+            style={styles.embedTarget}
+          >
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              height: '500px',
+              color: '#6b7280',
+              fontSize: '16px'
+            }}>
+              <div style={{textAlign: 'center'}}>
+                <div style={styles.spinner}></div>
+                <p style={{marginTop: '16px'}}>Loading secure payment form...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default HomePage;
