@@ -14,13 +14,13 @@ function HomePage() {
   const [lastSessionId, setLastSessionId] = useState(null);
   const embedTargetRef = useRef(null);
   
-  // Environment-based configuration
-  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://hco-configurable-embedded-backend.vercel.app';
-  const DEBUG_MODE = process.env.REACT_APP_DEBUG_MODE === 'true';
-  const ENABLE_CONSOLE_LOGS = process.env.REACT_APP_ENABLE_CONSOLE_LOGS === 'true';
-  const ENABLE_ADVANCED_MODE = process.env.REACT_APP_ENABLE_ADVANCED_MODE !== 'false';
-  const ENABLE_CONFIG_SAVE = process.env.REACT_APP_ENABLE_CONFIG_SAVE !== 'false';
-  const API_TIMEOUT = parseInt(process.env.REACT_APP_API_TIMEOUT) || 30000;
+  // Application configuration - no environment variables
+  const API_BASE_URL = 'https://hco-configurable-embedded-backend.vercel.app';
+  const DEBUG_MODE = true;
+  const ENABLE_CONSOLE_LOGS = true;
+  const ENABLE_ADVANCED_MODE = true;
+  const ENABLE_CONFIG_SAVE = true;
+  const API_TIMEOUT = 30000;
   
   // Helper function for conditional logging
   const debugLog = useCallback((...args) => {
@@ -29,45 +29,45 @@ function HomePage() {
     }
   }, [ENABLE_CONSOLE_LOGS, DEBUG_MODE]);
 
-  // Configuration for API credentials with environment defaults
+  // Configuration for API credentials with hardcoded defaults
   const [config, setConfig] = useState({
-    merchantId: process.env.REACT_APP_DEFAULT_MERCHANT_ID || 'TESTMIDtesting00',
-    username: process.env.REACT_APP_DEFAULT_USERNAME || 'merchant.TESTMIDtesting00',
-    password: process.env.REACT_APP_DEFAULT_PASSWORD || '9233298fcaa1c01f578759954343aca1',
-    apiBaseUrl: process.env.REACT_APP_MASTERCARD_API_BASE_URL || 'https://mtf.gateway.mastercard.com',
-    apiVersion: process.env.REACT_APP_API_VERSION || '73'
+    merchantId: 'TESTMIDtesting00',
+    username: 'merchant.TESTMIDtesting00',
+    password: '9233298fcaa1c01f578759954343aca1',
+    apiBaseUrl: 'https://mtf.gateway.mastercard.com',
+    apiVersion: '73'
   });
 
-  // Order configuration with environment defaults
+  // Order configuration with hardcoded defaults
   const [orderConfig, setOrderConfig] = useState({
-    currency: process.env.REACT_APP_DEFAULT_CURRENCY || 'USD',
-    amount: process.env.REACT_APP_DEFAULT_AMOUNT || '99.00',
-    description: process.env.REACT_APP_DEFAULT_DESCRIPTION || 'Goods and Services',
-    merchantName: process.env.REACT_APP_DEFAULT_MERCHANT_NAME || 'JK Enterprises LLC',
-    merchantUrl: process.env.REACT_APP_DEFAULT_MERCHANT_URL || 'https://microsoft.com/',
-    returnUrl: `${process.env.REACT_APP_RETURN_URL_BASE || window.location.origin}${process.env.REACT_APP_RECEIPT_PAGE || '/ReceiptPage'}`
+    currency: 'USD',
+    amount: '99.00',
+    description: 'Goods and Services',
+    merchantName: 'JK Enterprises LLC',
+    merchantUrl: 'https://microsoft.com/',
+    returnUrl: `${window.location.origin}/ReceiptPage`
   });
 
   const [useAdvancedMode, setUseAdvancedMode] = useState(false);
   const [showApiTest, setShowApiTest] = useState(false);
 
-  // JSON payload for advanced mode with environment-aware defaults
+  // JSON payload for advanced mode with hardcoded defaults
   const [jsonPayload, setJsonPayload] = useState(`{
   "apiOperation": "INITIATE_CHECKOUT",
   "checkoutMode": "WEBSITE",
   "interaction": {
     "operation": "PURCHASE",
     "merchant": { 
-      "name": "${process.env.REACT_APP_DEFAULT_MERCHANT_NAME || 'JK Enterprises LLC'}",
-      "url": "${process.env.REACT_APP_DEFAULT_MERCHANT_URL || 'https://microsoft.com/'}"
+      "name": "JK Enterprises LLC",
+      "url": "https://microsoft.com/"
     },
-    "returnUrl": "${process.env.REACT_APP_RETURN_URL_BASE || window.location.origin}${process.env.REACT_APP_RECEIPT_PAGE || '/ReceiptPage'}"
+    "returnUrl": "${window.location.origin}/ReceiptPage"
   },
   "order": {
-    "currency": "${process.env.REACT_APP_DEFAULT_CURRENCY || 'USD'}",
-    "amount": "${process.env.REACT_APP_DEFAULT_AMOUNT || '99.00'}",
+    "currency": "USD",
+    "amount": "99.00",
     "id": "ORDER_PLACEHOLDER",
-    "description": "${process.env.REACT_APP_DEFAULT_DESCRIPTION || 'Goods and Services'}"
+    "description": "Goods and Services"
   }
 }`);
 
@@ -262,23 +262,23 @@ function HomePage() {
     }
   }, []);
 
-  // Reset to environment defaults
+  // Reset to hardcoded defaults
   const resetToDefaults = useCallback(() => {
     setConfig({
-      merchantId: process.env.REACT_APP_DEFAULT_MERCHANT_ID || 'TESTMIDtesting00',
-      username: process.env.REACT_APP_DEFAULT_USERNAME || 'merchant.TESTMIDtesting00',
-      password: process.env.REACT_APP_DEFAULT_PASSWORD || '9233298fcaa1c01f578759954343aca1',
-      apiBaseUrl: process.env.REACT_APP_MASTERCARD_API_BASE_URL || 'https://mtf.gateway.mastercard.com',
-      apiVersion: process.env.REACT_APP_API_VERSION || '73'
+      merchantId: 'TESTMIDtesting00',
+      username: 'merchant.TESTMIDtesting00',
+      password: '9233298fcaa1c01f578759954343aca1',
+      apiBaseUrl: 'https://mtf.gateway.mastercard.com',
+      apiVersion: '73'
     });
     
     setOrderConfig({
-      currency: process.env.REACT_APP_DEFAULT_CURRENCY || 'USD',
-      amount: process.env.REACT_APP_DEFAULT_AMOUNT || '99.00',
-      description: process.env.REACT_APP_DEFAULT_DESCRIPTION || 'Goods and Services',
-      merchantName: process.env.REACT_APP_DEFAULT_MERCHANT_NAME || 'JK Enterprises LLC',
-      merchantUrl: process.env.REACT_APP_DEFAULT_MERCHANT_URL || 'https://microsoft.com/',
-      returnUrl: `${process.env.REACT_APP_RETURN_URL_BASE || window.location.origin}${process.env.REACT_APP_RECEIPT_PAGE || '/ReceiptPage'}`
+      currency: 'USD',
+      amount: '99.00',
+      description: 'Goods and Services',
+      merchantName: 'JK Enterprises LLC',
+      merchantUrl: 'https://microsoft.com/',
+      returnUrl: `${window.location.origin}/ReceiptPage`
     });
 
     // Update JSON payload
@@ -288,16 +288,16 @@ function HomePage() {
   "interaction": {
     "operation": "PURCHASE",
     "merchant": { 
-      "name": "${process.env.REACT_APP_DEFAULT_MERCHANT_NAME || 'JK Enterprises LLC'}",
-      "url": "${process.env.REACT_APP_DEFAULT_MERCHANT_URL || 'https://microsoft.com/'}"
+      "name": "JK Enterprises LLC",
+      "url": "https://microsoft.com/"
     },
-    "returnUrl": "${process.env.REACT_APP_RETURN_URL_BASE || window.location.origin}${process.env.REACT_APP_RECEIPT_PAGE || '/ReceiptPage'}"
+    "returnUrl": "${window.location.origin}/ReceiptPage"
   },
   "order": {
-    "currency": "${process.env.REACT_APP_DEFAULT_CURRENCY || 'USD'}",
-    "amount": "${process.env.REACT_APP_DEFAULT_AMOUNT || '99.00'}",
+    "currency": "USD",
+    "amount": "99.00",
     "id": "ORDER_PLACEHOLDER",
-    "description": "${process.env.REACT_APP_DEFAULT_DESCRIPTION || 'Goods and Services'}"
+    "description": "Goods and Services"
   }
 }`);
 
@@ -311,7 +311,7 @@ function HomePage() {
     setError(null);
     setSuccess('Reset to default configuration!');
     setTimeout(() => setSuccess(null), 3000);
-    debugLog('Reset to environment defaults');
+    debugLog('Reset to hardcoded defaults');
   }, [ENABLE_CONFIG_SAVE, debugLog]);
 
   // Test API connection
@@ -608,7 +608,7 @@ function HomePage() {
       position: 'absolute',
       top: '15px',
       right: '15px',
-      backgroundColor: process.env.REACT_APP_ENV === 'production' ? '#059669' : '#d97706',
+      backgroundColor: '#d97706',
       color: 'white',
       padding: '4px 12px',
       borderRadius: '6px',
@@ -697,11 +697,6 @@ function HomePage() {
       boxSizing: 'border-box',
       backgroundColor: '#ffffff'
     },
-    inputFocused: {
-      borderColor: '#667eea',
-      boxShadow: '0 0 0 3px rgba(102, 126, 234, 0.1)',
-      outline: 'none'
-    },
     textarea: {
       width: '100%',
       padding: '16px',
@@ -744,11 +739,6 @@ function HomePage() {
       gap: '12px',
       marginBottom: '12px',
       boxShadow: '0 4px 12px rgba(5, 150, 105, 0.3)'
-    },
-    paymentButtonHover: {
-      backgroundColor: '#047857',
-      transform: 'translateY(-1px)',
-      boxShadow: '0 6px 16px rgba(5, 150, 105, 0.4)'
     },
     paymentButtonDisabled: {
       backgroundColor: '#9ca3af',
@@ -914,448 +904,3 @@ function HomePage() {
             transform: translateY(-1px);
             box-shadow: 0 6px 16px rgba(5, 150, 105, 0.4);
           }
-          
-          .secondary-button:hover {
-            background-color: #f1f5f9;
-            border-color: #cbd5e1;
-          }
-          
-          .back-button:hover {
-            background: linear-gradient(135deg, #4b5563 0%, #374151 100%);
-          }
-        `}
-      </style>
-
-      {/* Header */}
-      <header style={styles.header}>
-        <div style={styles.headerContent}>
-          <div>
-            <h1 style={{margin: 0, fontSize: '28px'}}>Mastercard Hosted Checkout</h1>
-            <p style={{margin: '8px 0 0 0', opacity: 0.9, fontSize: '16px'}}>
-              Secure Payment Integration Platform
-            </p>
-          </div>
-          <div style={{display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'flex-end'}}>
-            <div style={styles.securityBadge}>
-              <span>🔒 PCI DSS Compliant</span>
-            </div>
-            <div style={styles.statusIndicator}>
-              <div style={styles.statusDot}></div>
-              <span>
-                {connectionStatus === 'connected' ? 'Backend Connected' : 
-                 connectionStatus === 'checking' ? 'Checking Connection...' : 
-                 'Connection Error'}
-              </span>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Success Message */}
-      {success && (
-        <div style={styles.successMessage}>
-          <span>✅</span>
-          <p style={{margin: 0}}>{success}</p>
-        </div>
-      )}
-
-      {/* Error Message */}
-      {error && (
-        <div style={styles.errorMessage}>
-          <span>⚠️</span>
-          <div>
-            <p style={{margin: 0, fontWeight: '600'}}>Error</p>
-            <p style={{margin: '4px 0 0 0', fontSize: '14px'}}>{error}</p>
-          </div>
-        </div>
-      )}
-
-      {/* Configuration Form */}
-      {showConfigForm && !showEmbeddedCheckout && (
-        <div style={styles.configForm}>
-          {/* Environment Badge */}
-          <div style={styles.envBadge}>
-            {process.env.REACT_APP_ENV || 'development'}
-          </div>
-
-          <h2 style={{marginTop: 0, color: '#1f2937', marginBottom: '8px', fontSize: '24px'}}>
-            Payment Configuration
-          </h2>
-          <p style={{color: '#6b7280', marginBottom: '25px', fontSize: '15px'}}>
-            Configure your Mastercard payment gateway settings and order details
-          </p>
-
-          {/* Tools Section */}
-          <div style={styles.toolsSection}>
-            <button
-              style={styles.toolButton}
-              className="tool-button"
-              onClick={testApiConnection}
-              disabled={isLoadingSession}
-            >
-              🔍 Test API Connection
-            </button>
-            <button
-              style={styles.toolButton}
-              className="tool-button"
-              onClick={checkConnection}
-            >
-              🔄 Refresh Connection
-            </button>
-            <button
-              style={styles.toolButton}
-              className="tool-button"
-              onClick={() => setShowApiTest(!showApiTest)}
-            >
-              🛠️ Debug Info
-            </button>
-            {ENABLE_CONFIG_SAVE && (
-              <button
-                style={styles.toolButton}
-                className="tool-button"
-                onClick={() => saveConfigToStorage(config, orderConfig)}
-              >
-                💾 Save Config
-              </button>
-            )}
-          </div>
-
-          {/* Debug Panel */}
-          {showApiTest && (
-            <div style={styles.debugPanel}>
-              <strong>Debug Information:</strong><br/>
-              API URL: {API_BASE_URL}<br/>
-              Environment: {process.env.REACT_APP_ENV || 'development'}<br/>
-              Debug Mode: {DEBUG_MODE ? 'Enabled' : 'Disabled'}<br/>
-              Advanced Mode: {ENABLE_ADVANCED_MODE ? 'Available' : 'Disabled'}<br/>
-              Config Save: {ENABLE_CONFIG_SAVE ? 'Enabled' : 'Disabled'}<br/>
-              Last Session ID: {lastSessionId || 'None'}<br/>
-              Connection Status: {connectionStatus}<br/>
-              Checkout Ready: {isCheckoutReady ? 'Yes' : 'No'}
-            </div>
-          )}
-          
-          {/* Mode Toggle - Only show if advanced mode is enabled */}
-          {ENABLE_ADVANCED_MODE && (
-            <div style={styles.modeToggle}>
-              <button
-                style={{
-                  ...styles.modeButton,
-                  ...(useAdvancedMode ? styles.modeButtonInactive : styles.modeButtonActive)
-                }}
-                onClick={() => setUseAdvancedMode(false)}
-              >
-                🎯 Simple Mode
-              </button>
-              <button
-                style={{
-                  ...styles.modeButton,
-                  ...(useAdvancedMode ? styles.modeButtonActive : styles.modeButtonInactive)
-                }}
-                onClick={() => setUseAdvancedMode(true)}
-              >
-                ⚙️ Advanced JSON Mode
-              </button>
-            </div>
-          )}
-
-          {/* API Configuration Section */}
-          <div style={styles.sectionTitle}>
-            🔐 API Configuration
-          </div>
-          <div style={styles.infoBox}>
-            <span>💡</span>
-            <div>
-              <strong>Secure Credentials:</strong> Your API credentials are used to authenticate with Mastercard's payment gateway. 
-              These are never stored on our servers and are only transmitted securely to Mastercard.
-            </div>
-          </div>
-
-          <div style={styles.formRow} className="form-row">
-            <div style={styles.formGroup}>
-              <label style={styles.label}>Merchant ID</label>
-              <input
-                style={styles.input}
-                className="config-input"
-                type="text"
-                value={config.merchantId}
-                onChange={(e) => handleConfigChange('merchantId', e.target.value)}
-                placeholder={process.env.REACT_APP_DEFAULT_MERCHANT_ID || "TESTMIDtesting00"}
-                onFocus={(e) => e.target.classList.add('input-focused')}
-                onBlur={(e) => e.target.classList.remove('input-focused')}
-              />
-            </div>
-            <div style={styles.formGroup}>
-              <label style={styles.label}>Username (auto-generated)</label>
-              <input
-                style={{...styles.input, backgroundColor: '#f9fafb', color: '#6b7280'}}
-                type="text"
-                value={config.username}
-                readOnly
-                placeholder={process.env.REACT_APP_DEFAULT_USERNAME || "merchant.TESTMIDtesting00"}
-              />
-            </div>
-          </div>
-
-          <div style={styles.formGroup}>
-            <label style={styles.label}>API Password</label>
-            <input
-              style={styles.input}
-              className="config-input"
-              type="password"
-              value={config.password}
-              onChange={(e) => handleConfigChange('password', e.target.value)}
-              placeholder="Enter your Mastercard API password"
-              onFocus={(e) => e.target.classList.add('input-focused')}
-              onBlur={(e) => e.target.classList.remove('input-focused')}
-            />
-          </div>
-
-          <div style={styles.formRow} className="form-row">
-            <div style={styles.formGroup}>
-              <label style={styles.label}>API Base URL</label>
-              <input
-                style={styles.input}
-                className="config-input"
-                type="text"
-                value={config.apiBaseUrl}
-                onChange={(e) => handleConfigChange('apiBaseUrl', e.target.value)}
-                placeholder={process.env.REACT_APP_MASTERCARD_API_BASE_URL || "https://mtf.gateway.mastercard.com"}
-                onFocus={(e) => e.target.classList.add('input-focused')}
-                onBlur={(e) => e.target.classList.remove('input-focused')}
-              />
-            </div>
-            <div style={styles.formGroup}>
-              <label style={styles.label}>API Version</label>
-              <input
-                style={styles.input}
-                className="config-input"
-                type="text"
-                value={config.apiVersion}
-                onChange={(e) => handleConfigChange('apiVersion', e.target.value)}
-                placeholder={process.env.REACT_APP_API_VERSION || "73"}
-                onFocus={(e) => e.target.classList.add('input-focused')}
-                onBlur={(e) => e.target.classList.remove('input-focused')}
-              />
-            </div>
-          </div>
-
-          {/* Order Configuration - Simple Mode */}
-          {!useAdvancedMode && (
-            <>
-              <div style={styles.sectionTitle}>
-                💳 Order Configuration
-              </div>
-              <div style={styles.formRow} className="form-row">
-                <div style={styles.formGroup}>
-                  <label style={styles.label}>Amount</label>
-                  <input
-                    style={styles.input}
-                    className="config-input"
-                    type="number"
-                    step="0.01"
-                    min="0.01"
-                    value={orderConfig.amount}
-                    onChange={(e) => handleOrderConfigChange('amount', e.target.value)}
-                    placeholder={process.env.REACT_APP_DEFAULT_AMOUNT || "99.00"}
-                    onFocus={(e) => e.target.classList.add('input-focused')}
-                    onBlur={(e) => e.target.classList.remove('input-focused')}
-                  />
-                </div>
-                <div style={styles.formGroup}>
-                  <label style={styles.label}>Currency</label>
-                  <select
-                    style={styles.input}
-                    value={orderConfig.currency}
-                    onChange={(e) => handleOrderConfigChange('currency', e.target.value)}
-                    onFocus={(e) => e.target.classList.add('input-focused')}
-                    onBlur={(e) => e.target.classList.remove('input-focused')}
-                  >
-                    <option value="USD">USD - US Dollar</option>
-                    <option value="EUR">EUR - Euro</option>
-                    <option value="GBP">GBP - British Pound</option>
-                    <option value="CAD">CAD - Canadian Dollar</option>
-                    <option value="AUD">AUD - Australian Dollar</option>
-                    <option value="JPY">JPY - Japanese Yen</option>
-                  </select>
-                </div>
-              </div>
-
-              <div style={styles.formGroup}>
-                <label style={styles.label}>Order Description</label>
-                <input
-                  style={styles.input}
-                  className="config-input"
-                  type="text"
-                  value={orderConfig.description}
-                  onChange={(e) => handleOrderConfigChange('description', e.target.value)}
-                  placeholder={process.env.REACT_APP_DEFAULT_DESCRIPTION || "Goods and Services"}
-                  onFocus={(e) => e.target.classList.add('input-focused')}
-                  onBlur={(e) => e.target.classList.remove('input-focused')}
-                />
-              </div>
-
-              <div style={styles.sectionTitle}>
-                🏢 Merchant Information
-              </div>
-              <div style={styles.formRow} className="form-row">
-                <div style={styles.formGroup}>
-                  <label style={styles.label}>Merchant Name</label>
-                  <input
-                    style={styles.input}
-                    className="config-input"
-                    type="text"
-                    value={orderConfig.merchantName}
-                    onChange={(e) => handleOrderConfigChange('merchantName', e.target.value)}
-                    placeholder={process.env.REACT_APP_DEFAULT_MERCHANT_NAME || "JK Enterprises LLC"}
-                    onFocus={(e) => e.target.classList.add('input-focused')}
-                    onBlur={(e) => e.target.classList.remove('input-focused')}
-                  />
-                </div>
-                <div style={styles.formGroup}>
-                  <label style={styles.label}>Merchant URL</label>
-                  <input
-                    style={styles.input}
-                    className="config-input"
-                    type="url"
-                    value={orderConfig.merchantUrl}
-                    onChange={(e) => handleOrderConfigChange('merchantUrl', e.target.value)}
-                    placeholder={process.env.REACT_APP_DEFAULT_MERCHANT_URL || "https://microsoft.com/"}
-                    onFocus={(e) => e.target.classList.add('input-focused')}
-                    onBlur={(e) => e.target.classList.remove('input-focused')}
-                  />
-                </div>
-              </div>
-
-              <div style={styles.formGroup}>
-                <label style={styles.label}>Return URL</label>
-                <input
-                  style={styles.input}
-                  className="config-input"
-                  type="url"
-                  value={orderConfig.returnUrl}
-                  onChange={(e) => handleOrderConfigChange('returnUrl', e.target.value)}
-                  placeholder={`${process.env.REACT_APP_RETURN_URL_BASE || window.location.origin}${process.env.REACT_APP_RECEIPT_PAGE || '/ReceiptPage'}`}
-                  onFocus={(e) => e.target.classList.add('input-focused')}
-                  onBlur={(e) => e.target.classList.remove('input-focused')}
-                />
-              </div>
-            </>
-          )}
-
-          {/* JSON Editor - Advanced Mode */}
-          {useAdvancedMode && ENABLE_ADVANCED_MODE && (
-            <>
-              <div style={styles.sectionTitle}>
-                ⚙️ Advanced JSON Configuration
-              </div>
-              <div style={styles.infoBox}>
-                <span>🔧</span>
-                <div>
-                  <strong>Advanced JSON Mode:</strong> Edit the complete JSON request payload for full control. 
-                  Use "ORDER_PLACEHOLDER" for the order ID - it will be auto-generated with a unique timestamp and random string.
-                </div>
-              </div>
-              
-              <div style={styles.formGroup}>
-                <label style={styles.label}>JSON Request Payload</label>
-                <textarea
-                  style={{
-                    ...styles.textarea,
-                    ...(jsonError ? styles.textareaError : {})
-                  }}
-                  value={jsonPayload}
-                  onChange={(e) => handleJsonChange(e.target.value)}
-                  placeholder="Enter complete JSON payload..."
-                />
-                {jsonError && (
-                  <div style={styles.jsonError}>
-                    <strong>JSON Error:</strong> {jsonError}
-                  </div>
-                )}
-              </div>
-            </>
-          )}
-
-          {/* Action Buttons */}
-          <button 
-            onClick={openCheckoutPage} 
-            className="payment-button"
-            style={{
-              ...styles.paymentButton,
-              ...(isLoadingSession || !isFormValid() ? styles.paymentButtonDisabled : {})
-            }}
-            disabled={isLoadingSession || !isFormValid()}
-          >
-            {isLoadingSession ? (
-              <>
-                <div style={styles.spinner}></div>
-                <span>Initializing Payment Session...</span>
-              </>
-            ) : (
-              <>
-                💳 <span>Proceed to Secure Checkout (${getCurrentAmount()} {useAdvancedMode ? 
-                  ((() => {
-                    try {
-                      return JSON.parse(jsonPayload).order?.currency || 'USD';
-                    } catch {
-                      return 'USD';
-                    }
-                  })()) : orderConfig.currency})</span>
-              </>
-            )}
-          </button>
-
-          {/* Secondary Buttons */}
-          <button 
-            onClick={resetToDefaults}
-            className="secondary-button"
-            style={styles.secondaryButton}
-          >
-            🔄 Reset to Environment Defaults
-          </button>
-        </div>
-      )}
-
-      {/* Embedded Checkout View */}
-      {showEmbeddedCheckout && (
-        <div style={styles.embeddedContainer}>
-          <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px'}}>
-            <button 
-              onClick={hideEmbeddedCheckout}
-              className="back-button"
-              style={styles.backButton}
-            >
-              ← Back to Configuration
-            </button>
-            <div style={{fontSize: '14px', color: '#6b7280'}}>
-              Session: {paymentSession?.substring(0, 12)}...
-            </div>
-          </div>
-          
-          <div 
-            id="embed-target" 
-            ref={embedTargetRef}
-            style={styles.embedTarget}
-          >
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              height: '500px',
-              color: '#6b7280',
-              fontSize: '16px'
-            }}>
-              <div style={{textAlign: 'center'}}>
-                <div style={styles.spinner}></div>
-                <p style={{marginTop: '16px'}}>Loading secure payment form...</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-export default HomePage;
