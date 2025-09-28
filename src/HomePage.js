@@ -915,15 +915,11 @@ function HomePage() {
       <header style={styles.header}>
         <div style={styles.headerContent}>
           <div>
-            <h1 style={{margin: 0, fontSize: '28px'}}>Mastercard Hosted Checkout</h1>
-            <p style={{margin: '8px 0 0 0', opacity: 0.9, fontSize: '16px'}}>
-              Secure Payment Integration Platform
-            </p>
+            <h1 style={{margin: 0, fontSize: '28px'}}>Mastercard Hosted Checkout - Embedded Form</h1>
+            
           </div>
           <div style={{display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'flex-end'}}>
-            <div style={styles.securityBadge}>
-              <span>🔒 PCI DSS Compliant</span>
-            </div>
+            
             <div style={styles.statusIndicator}>
               <div style={styles.statusDot}></div>
               <span>
