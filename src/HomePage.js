@@ -164,7 +164,7 @@ function HomePage() {
 
       console.log('Sending request:', requestBody);
 
-      const response = await fetch('http://localhost:3005/', {
+      const response = await fetch('https://hco-configurable-embedded-backend.vercel.app/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
