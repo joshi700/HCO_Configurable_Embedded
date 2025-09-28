@@ -959,47 +959,10 @@ function HomePage() {
             development
           </div>
 
-          <h2 style={{marginTop: 0, color: '#1f2937', marginBottom: '8px', fontSize: '24px'}}>
-            Payment Configuration
-          </h2>
-          <p style={{color: '#6b7280', marginBottom: '25px', fontSize: '15px'}}>
-            Configure your Mastercard payment gateway settings and order details
-          </p>
+          
 
           {/* Tools Section */}
-          <div style={styles.toolsSection}>
-            <button
-              style={styles.toolButton}
-              className="tool-button"
-              onClick={testApiConnection}
-              disabled={isLoadingSession}
-            >
-              🔍 Test API Connection
-            </button>
-            <button
-              style={styles.toolButton}
-              className="tool-button"
-              onClick={checkConnection}
-            >
-              🔄 Refresh Connection
-            </button>
-            <button
-              style={styles.toolButton}
-              className="tool-button"
-              onClick={() => setShowApiTest(!showApiTest)}
-            >
-              🛠️ Debug Info
-            </button>
-            {ENABLE_CONFIG_SAVE && (
-              <button
-                style={styles.toolButton}
-                className="tool-button"
-                onClick={() => saveConfigToStorage(config, orderConfig)}
-              >
-                💾 Save Config
-              </button>
-            )}
-          </div>
+          
 
           {/* Debug Panel */}
           {showApiTest && (
