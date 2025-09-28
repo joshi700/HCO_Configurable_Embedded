@@ -1007,13 +1007,7 @@ function HomePage() {
           <div style={styles.sectionTitle}>
             🔐 API Configuration
           </div>
-          <div style={styles.infoBox}>
-            <span>💡</span>
-            <div>
-              <strong>Secure Credentials:</strong> Your API credentials are used to authenticate with Mastercard's payment gateway. 
-              These are never stored on our servers and are only transmitted securely to Mastercard.
-            </div>
-          </div>
+          
 
           <div style={styles.formRow} className="form-row">
             <div style={styles.formGroup}>
