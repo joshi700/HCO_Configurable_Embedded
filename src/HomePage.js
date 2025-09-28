@@ -1320,19 +1320,6 @@ function HomePage() {
             ref={embedTargetRef}
             style={styles.embedTarget}
           >
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              height: '500px',
-              color: '#6b7280',
-              fontSize: '16px'
-            }}>
-              <div style={{textAlign: 'center'}}>
-                <div style={styles.spinner}></div>
-                <p style={{marginTop: '16px'}}>Loading secure payment form...</p>
-              </div>
-            </div>
           </div>
         </div>
       )}
