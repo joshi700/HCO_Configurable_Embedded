@@ -144,14 +144,6 @@ function HomePage() {
           const configObj = {
             session: {
               id: paymentSession
-            },
-            interaction: {
-              displayControl: {
-                billingAddress: 'OPTIONAL',
-                customerEmail: 'OPTIONAL',
-                orderSummary: 'SHOW',
-                shipping: 'HIDE'
-              }
             }
           };
           
