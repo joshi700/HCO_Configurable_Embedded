@@ -57,9 +57,12 @@ function HomePage() {
   "checkoutMode": "WEBSITE",
   "interaction": {
     "operation": "PURCHASE",
+    "displayControl": {
+            "billingAddress": "HIDE"
+        },
     "merchant": { 
       "name": "JK Enterprises LLC",
-      "url": "https://microsoft.com/"
+      "url": "https://mastercard.com/"
     },
     "returnUrl": "${window.location.origin}/ReceiptPage"
   },
