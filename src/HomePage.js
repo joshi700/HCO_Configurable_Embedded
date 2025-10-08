@@ -33,7 +33,7 @@ function HomePage() {
   const [config, setConfig] = useState({
     merchantId: 'TESTMIDtesting00',
     username: 'merchant.TESTMIDtesting00',
-    password: '9233298fcaa1c01f578759954343aca1',
+    password: '',
     apiBaseUrl: 'https://mtf.gateway.mastercard.com',
     apiVersion: '73'
   });
@@ -43,7 +43,7 @@ function HomePage() {
     currency: 'USD',
     amount: '99.00',
     description: 'Goods and Services',
-    merchantName: 'JK Enterprises LLC',
+    merchantName: 'ABC Enterprises LLC',
     merchantUrl: 'https://microsoft.com/',
     returnUrl: `${window.location.origin}/ReceiptPage`
   });
@@ -262,7 +262,7 @@ function HomePage() {
     setConfig({
       merchantId: 'TESTMIDtesting00',
       username: 'merchant.TESTMIDtesting00',
-      password: '9233298fcaa1c01f578759954343aca1',
+      password: '',
       apiBaseUrl: 'https://mtf.gateway.mastercard.com',
       apiVersion: '73'
     });
@@ -271,7 +271,7 @@ function HomePage() {
       currency: 'USD',
       amount: '99.00',
       description: 'Goods and Services',
-      merchantName: 'JK Enterprises LLC',
+      merchantName: 'ABC Enterprises LLC',
       merchantUrl: 'https://microsoft.com/',
       returnUrl: `${window.location.origin}/ReceiptPage`
     });
@@ -283,7 +283,7 @@ function HomePage() {
   "interaction": {
     "operation": "PURCHASE",
     "merchant": { 
-      "name": "JK Enterprises LLC",
+      "name": "ABC Enterprises LLC",
       "url": "https://microsoft.com/"
     },
     "returnUrl": "${window.location.origin}/ReceiptPage"
@@ -1110,6 +1110,7 @@ function HomePage() {
                     onBlur={(e) => e.target.classList.remove('input-focused')}
                   >
                     <option value="USD">USD - US Dollar</option>
+                    <option value="HKD">Hong Kong - Dollar</option>
                     <option value="EUR">EUR - Euro</option>
                     <option value="GBP">GBP - British Pound</option>
                     <option value="CAD">CAD - Canadian Dollar</option>
