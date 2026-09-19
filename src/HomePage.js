@@ -1,5 +1,81 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 
+// Contact details the hosted page shows as a merchant footer, and sample payer
+// data for the read-only customer, billing and shipping boxes. Plain ASCII
+// only: the hosted UI mis-renders some non-ASCII characters.
+const MERCHANT_CONTACT = {
+  email: 'support@example.com',
+  phone: '+1 555 010 0199',
+  address: { line1: '100 Example Street', line2: 'Suite 400', line3: 'St Louis, MO 63102', line4: 'United States' }
+};
+const SAMPLE_CUSTOMER = { firstName: 'Sample', lastName: 'Payer', email: 'sample.payer@example.com', mobilePhone: '+1 5557891238' };
+const SAMPLE_ADDRESS = {
+  street: '11 N 4th St', street2: 'Apt 2B', city: 'St Louis', stateProvince: 'MO', postcodeZip: '63102', country: 'USA'
+};
+
+// The Advanced-mode template. One definition for both first load and "reset
+// to defaults" — the two copies had drifted (only one set displayControl).
+// ORDER_PLACEHOLDER is replaced everywhere it appears, so the description
+// carries the real order id onto the hosted page.
+const defaultJsonPayload = () => JSON.stringify({
+  apiOperation: 'INITIATE_CHECKOUT',
+  checkoutMode: 'WEBSITE',
+  interaction: {
+    operation: 'PURCHASE',
+    displayControl: { billingAddress: 'READ_ONLY', customerEmail: 'READ_ONLY', shipping: 'READ_ONLY' },
+    merchant: { name: 'GJ Enterprises LLC', url: 'https://www.example.com', ...MERCHANT_CONTACT },
+    locale: 'en_US',
+    returnUrl: `${window.location.origin}/ReceiptPage`
+  },
+  order: {
+    currency: 'USD',
+    amount: '99.00',
+    id: 'ORDER_PLACEHOLDER',
+    description: 'Order ORDER_PLACEHOLDER - Goods and Services',
+    itemAmount: '99.00',
+    taxAmount: '0.00',
+    item: [{ name: 'Premium Watch', description: 'Stainless steel, 42 mm', quantity: 1, unitPrice: '99.00' }]
+  },
+  customer: SAMPLE_CUSTOMER,
+  billing: { address: SAMPLE_ADDRESS },
+  shipping: { contact: { firstName: SAMPLE_CUSTOMER.firstName, lastName: SAMPLE_CUSTOMER.lastName }, address: SAMPLE_ADDRESS }
+}, null, 2);
+
+const money = (v) => `$${Number(v).toFixed(2)}`;
+
+// In embedded mode Mastercard renders only the payment form, so the order
+// summary is this page's job. Drawn from the order the backend actually sent.
+function OrderSummary({ order }) {
+  const row = { display: 'flex', justifyContent: 'space-between', fontSize: '14px', padding: '4px 0', color: '#374151' };
+  const items = Array.isArray(order.item) ? order.item : [];
+  return (
+    <aside style={{ border: '1px solid #e5e7eb', borderRadius: '8px', background: '#f7f8fa', padding: '20px', textAlign: 'left' }}>
+      <h3 style={{ margin: '0 0 6px', fontSize: '16px' }}>Order summary</h3>
+      <p style={{ margin: '0 0 16px', fontSize: '12px', color: '#6b7280', wordBreak: 'break-all' }}>Order {order.id}</p>
+      {items.length > 0 && (
+        <ul style={{ listStyle: 'none', margin: '0 0 12px', padding: '0 0 12px', borderBottom: '1px solid #e5e7eb' }}>
+          {items.map((i) => (
+            <li key={i.name} style={{ marginBottom: '10px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', fontSize: '14px' }}>
+                <span style={{ fontWeight: 600 }}>{i.name}</span>
+                <span>{money(Number(i.unitPrice) * Number(i.quantity))}</span>
+              </div>
+              <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '2px' }}>
+                {i.description ? `${i.description} - ` : ''}Qty {i.quantity}
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+      {order.itemAmount && <div style={row}><span>Subtotal</span><span>{money(order.itemAmount)}</span></div>}
+      {order.taxAmount && <div style={row}><span>Tax</span><span>{money(order.taxAmount)}</span></div>}
+      <div style={{ ...row, borderTop: '1px solid #e5e7eb', marginTop: '8px', paddingTop: '10px', fontWeight: 700, fontSize: '16px', color: '#111827' }}>
+        <span>Total</span><span>{order.currency} {money(order.amount)}</span>
+      </div>
+    </aside>
+  );
+}
+
 function HomePage() {
   // State Management
   const [paymentSession, setPaymentSession] = useState(null);
@@ -12,10 +88,12 @@ function HomePage() {
   const [showConfigForm, setShowConfigForm] = useState(true);
   const [connectionStatus, setConnectionStatus] = useState('checking');
   const [lastSessionId, setLastSessionId] = useState(null);
+  const [order, setOrder] = useState(null);
   const embedTargetRef = useRef(null);
   
   // Application configuration - no environment variables
-  const API_BASE_URL = 'https://hco-configurable-embedded-backend.vercel.app';
+  // Overridable per deployment, so a preview frontend can target a preview backend.
+  const API_BASE_URL = process.env.REACT_APP_BACKEND_URL || 'https://hco-configurable-embedded-backend.vercel.app';
   const DEBUG_MODE = true;
   const ENABLE_CONSOLE_LOGS = true;
   const ENABLE_ADVANCED_MODE = true;
@@ -35,7 +113,7 @@ function HomePage() {
     username: 'merchant.TESTMIDtesting00',
     password: '',
     apiBaseUrl: 'https://mtf.gateway.mastercard.com',
-    apiVersion: '73'
+    apiVersion: '100'
   });
 
   // Order configuration with hardcoded defaults
@@ -43,8 +121,8 @@ function HomePage() {
     currency: 'USD',
     amount: '99.00',
     description: 'Goods and Services',
-    merchantName: 'ABC Enterprises LLC',
-    merchantUrl: 'https://microsoft.com/',
+    merchantName: 'GJ Enterprises LLC',
+    merchantUrl: 'https://www.example.com',
     returnUrl: `${window.location.origin}/ReceiptPage`
   });
 
@@ -52,27 +130,7 @@ function HomePage() {
   const [showApiTest, setShowApiTest] = useState(false);
 
   // JSON payload for advanced mode with hardcoded defaults
-  const [jsonPayload, setJsonPayload] = useState(`{
-  "apiOperation": "INITIATE_CHECKOUT",
-  "checkoutMode": "WEBSITE",
-  "interaction": {
-    "operation": "PURCHASE",
-    "displayControl": {
-            "billingAddress": "HIDE"
-        },
-    "merchant": { 
-      "name": "JK Enterprises LLC",
-      "url": "https://mastercard.com/"
-    },
-    "returnUrl": "${window.location.origin}/ReceiptPage"
-  },
-  "order": {
-    "currency": "USD",
-    "amount": "99.00",
-    "id": "ORDER_PLACEHOLDER",
-    "description": "Goods and Services"
-  }
-}`);
+  const [jsonPayload, setJsonPayload] = useState(defaultJsonPayload);
 
   const [jsonError, setJsonError] = useState(null);
 
@@ -264,37 +322,20 @@ function HomePage() {
       username: 'merchant.TESTMIDtesting00',
       password: '',
       apiBaseUrl: 'https://mtf.gateway.mastercard.com',
-      apiVersion: '73'
+      apiVersion: '100'
     });
     
     setOrderConfig({
       currency: 'USD',
       amount: '99.00',
       description: 'Goods and Services',
-      merchantName: 'ABC Enterprises LLC',
-      merchantUrl: 'https://microsoft.com/',
+      merchantName: 'GJ Enterprises LLC',
+      merchantUrl: 'https://www.example.com',
       returnUrl: `${window.location.origin}/ReceiptPage`
     });
 
     // Update JSON payload
-    setJsonPayload(`{
-  "apiOperation": "INITIATE_CHECKOUT",
-  "checkoutMode": "WEBSITE",
-  "interaction": {
-    "operation": "PURCHASE",
-    "merchant": { 
-      "name": "ABC Enterprises LLC",
-      "url": "https://microsoft.com/"
-    },
-    "returnUrl": "${window.location.origin}/ReceiptPage"
-  },
-  "order": {
-    "currency": "USD",
-    "amount": "99.00",
-    "id": "ORDER_PLACEHOLDER",
-    "description": "Goods and Services"
-  }
-}`);
+    setJsonPayload(defaultJsonPayload());
 
     // Clear stored configuration
     if (ENABLE_CONFIG_SAVE) {
@@ -343,7 +384,7 @@ function HomePage() {
   // Generate order ID and update JSON
   const updateJsonWithOrderId = (json) => {
     const orderId = `ORDER_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    return json.replace('"ORDER_PLACEHOLDER"', `"${orderId}"`);
+    return json.replace(/ORDER_PLACEHOLDER/g, orderId);
   };
 
   // Validate and parse JSON payload
@@ -372,22 +413,27 @@ function HomePage() {
       // Use simple form mode
       const orderId = `ORDER_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       return {
-        "apiOperation": "INITIATE_CHECKOUT",
-        "checkoutMode": "WEBSITE",
-        "interaction": {
-          "operation": "PURCHASE",
-          "merchant": { 
-            "name": orderConfig.merchantName,
-            "url": orderConfig.merchantUrl
-          },
-          "returnUrl": orderConfig.returnUrl
+        apiOperation: "INITIATE_CHECKOUT",
+        checkoutMode: "WEBSITE",
+        interaction: {
+          operation: "PURCHASE",
+          displayControl: { billingAddress: "READ_ONLY", customerEmail: "READ_ONLY", shipping: "READ_ONLY" },
+          merchant: { ...MERCHANT_CONTACT, name: orderConfig.merchantName, url: orderConfig.merchantUrl },
+          locale: "en_US",
+          returnUrl: orderConfig.returnUrl
         },
-        "order": {
-          "currency": orderConfig.currency,
-          "amount": orderConfig.amount,
-          "id": orderId,
-          "description": orderConfig.description
-        }
+        order: {
+          currency: orderConfig.currency,
+          amount: orderConfig.amount,
+          id: orderId,
+          description: `Order ${orderId} - ${orderConfig.description}`,
+          itemAmount: orderConfig.amount,
+          taxAmount: "0.00",
+          item: [{ name: orderConfig.description, quantity: 1, unitPrice: orderConfig.amount }]
+        },
+        customer: SAMPLE_CUSTOMER,
+        billing: { address: SAMPLE_ADDRESS },
+        shipping: { contact: { firstName: SAMPLE_CUSTOMER.firstName, lastName: SAMPLE_CUSTOMER.lastName }, address: SAMPLE_ADDRESS }
       };
     }
   }, [useAdvancedMode, jsonPayload, orderConfig]);
@@ -440,6 +486,7 @@ function HomePage() {
       
       if (data.sessionId) {
         setLastSessionId(data.sessionId);
+        setOrder(data.order || null);
         return data.sessionId;
       } else if (typeof data === 'string') {
         setLastSessionId(data);
@@ -546,6 +593,7 @@ function HomePage() {
     setShowEmbeddedCheckout(false);
     setShowConfigForm(true);
     setPaymentSession(null);
+    setOrder(null);
     setError(null);
     
     debugLog('Checkout closed, returned to configuration');
@@ -861,9 +909,11 @@ function HomePage() {
 
   const isFormValid = () => {
     if (useAdvancedMode) {
-      return !jsonError && jsonPayload.trim() !== '' && config.merchantId && config.username && config.password;
+      // No password required: left blank, the backend uses its own server-side
+      // credential, so the secret never has to be in the browser.
+      return !jsonError && jsonPayload.trim() !== '' && config.merchantId && config.username;
     } else {
-      return config.merchantId && config.username && config.password && 
+      return config.merchantId && config.username && 
              orderConfig.amount && orderConfig.currency && orderConfig.description &&
              parseFloat(orderConfig.amount) > 0;
     }
@@ -1043,7 +1093,7 @@ function HomePage() {
               type="password"
               value={config.password}
               onChange={(e) => handleConfigChange('password', e.target.value)}
-              placeholder="Enter your Mastercard API password"
+              placeholder="Leave blank to use the server credential"
               onFocus={(e) => e.target.classList.add('input-focused')}
               onBlur={(e) => e.target.classList.remove('input-focused')}
             />
@@ -1071,7 +1121,7 @@ function HomePage() {
                 type="text"
                 value={config.apiVersion}
                 onChange={(e) => handleConfigChange('apiVersion', e.target.value)}
-                placeholder="73"
+                placeholder="100"
                 onFocus={(e) => e.target.classList.add('input-focused')}
                 onBlur={(e) => e.target.classList.remove('input-focused')}
               />
@@ -1146,7 +1196,7 @@ function HomePage() {
                     type="text"
                     value={orderConfig.merchantName}
                     onChange={(e) => handleOrderConfigChange('merchantName', e.target.value)}
-                    placeholder="JK Enterprises LLC"
+                    placeholder="GJ Enterprises LLC"
                     onFocus={(e) => e.target.classList.add('input-focused')}
                     onBlur={(e) => e.target.classList.remove('input-focused')}
                   />
@@ -1159,7 +1209,7 @@ function HomePage() {
                     type="url"
                     value={orderConfig.merchantUrl}
                     onChange={(e) => handleOrderConfigChange('merchantUrl', e.target.value)}
-                    placeholder="https://microsoft.com/"
+                    placeholder="https://www.example.com"
                     onFocus={(e) => e.target.classList.add('input-focused')}
                     onBlur={(e) => e.target.classList.remove('input-focused')}
                   />
@@ -1272,11 +1322,14 @@ function HomePage() {
             </div>
           </div>
           
-          <div 
-            id="embed-target" 
-            ref={embedTargetRef}
-            style={styles.embedTarget}
-          >
+          <div style={{ display: 'grid', gridTemplateColumns: order ? 'minmax(0, 1fr) 300px' : '1fr', gap: '24px', alignItems: 'start' }}>
+            <div 
+              id="embed-target" 
+              ref={embedTargetRef}
+              style={styles.embedTarget}
+            >
+            </div>
+            {order && <OrderSummary order={order} />}
           </div>
         </div>
       )}
